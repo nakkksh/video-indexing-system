@@ -13,3 +13,8 @@ videos/*
 
 # macOS
 .DS_Storevideos/
+
+# Ignore SQLite databases
+*.db
+*.sqlite
+*.sqlite3
