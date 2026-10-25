@@ -167,68 +167,6 @@
                 </div>
             </div>
             <script>
-                ///const uploadForm = document.querySelector('form[enctype="multipart/form-data"]');
-                if (uploadForm) {
-                    uploadForm.addEventListener('submit', function (event) {
-                        const fileInput = uploadForm.querySelector('input[type="file"]');
-                        if (!fileInput || !fileInput.files.length) {
-                            return;
-                        }
-                        const file = fileInput.files[0];
-                        if (!file.name.toLowerCase().endsWith('.mp4')) {
-                            return;
-                        }
-                        const overlay = document.getElementById('uploadOverlay');
-                        const progressBar = document.getElementById('uploadProgress');
-                        const percentage = document.getElementById('uploadPercentage');
-                        const status = document.getElementById('uploadStatus');
-                        overlay.classList.add('active');
-                        status.textContent = 'Preparing your video...';
-                        const formData = new FormData(uploadForm);
-                        const xhr = new XMLHttpRequest();
-                        xhr.open('POST', uploadForm.action);
-                        xhr.upload.addEventListener('progress', function (e) {
-                            if (e.lengthComputable) {
-                                const percent = Math.round((e.loaded / e.total) * 100);
-                                progressBar.style.width = percent + '%';
-                                percentage.textContent = percent + '%';
-                                if (percent >= 100) {
-                                    status.textContent = 'Processing video...';
-                                } else {
-                                    status.textContent = 'Uploading your video...';
-                                }
-                            }
-                        });
-                        xhr.addEventListener('load', function () {
-                            if (xhr.status >= 200 && xhr.status < 400) {
-                                status.textContent = 'Upload complete! Refreshing library...';
-                                window.location.href = xhr.responseURL || '/';
-                            } else {
-                                overlay.classList.remove('active');
-                                alert('Upload failed. Please try again.');
-                            }
-                        });
-                        xhr.addEventListener('error', function () {
-                            overlay.classList.remove('active');
-                            alert('Network error. Please check your connection and try again.');
-                        });
-                        xhr.send(formData);
-                        event.preventDefault();
-                    });
-                }
-            </script>
-            <h2>Uploading your video</h2>
-            <p id="uploadStatus">Please wait while we process your video...</p>
-
-            <div class="upload-progress-track">
-                <div id="uploadProgress" class="upload-progress-bar"></div>
-            </div>
-
-            <span id="uploadPercentage">0%</span>
-            <small>Please don't close or refresh this page.</small>
-            </div>
-            </div>
-            <script>
                 const uploadForm = document.querySelector('form[enctype="multipart/form-data"]');
 
                 if (uploadForm) {

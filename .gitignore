@@ -5,7 +5,7 @@ venv/
 .env
 
 # SQLite database
-video_database.db
+git rm --cached video_database.dbvideo_database.db
 
 # Uploaded video file
 videos/*
