@@ -12,10 +12,16 @@
 
 <body>
 
-    <header>
-        <h1>ClipsCart</h1>
-        <p>Video Indexing and Retrieval System</p>
+    <header class="site-header">
+        <div class="brand">
+            <h1>ClipsCart</h1>
+            <p>Video Indexing and Retrieval System</p>
+        </div>
+
+        <a class="home-link" href="/">Home</a>
+
     </header>
+
 
     <main>
 
@@ -27,77 +33,130 @@
         {% endif %}
         {% endwith %}
 
+        {% if page == 'home' %}
+
+        <section class="welcome-section">
+            <span class="eyebrow">YOUR PERSONAL VIDEO LIBRARY</span>
+
+            <h2>What would you like to do?</h2>
+
+            <p>Search your existing videos or add new videos to your library.</p>
+
+            <div class="choice-grid">
+
+                <a href="/?page=search" class="choice-card">
+                    <div class="choice-icon">⌕</div>
+                    <h3>Search Videos</h3>
+                    <p>Find videos by title or description and play them instantly.</p>
+                    <span class="choice-link">Search library →</span>
+                </a>
+
+                <a href="/?page=upload" class="choice-card">
+                    <div class="choice-icon">＋</div>
+                    <h3>Upload Video</h3>
+                    <p>Add a new video and save its information to your library.</p>
+                    <span class="choice-link">Upload a video →</span>
+                </a>
+
+            </div>
+        </section>
+
+        {% elif page == 'search' %}
+
+        <section class="page-heading">
+            <a href="/" class="back-link">← Back to options</a>
+            <h2>Search Videos</h2>
+            <p>Find a video by entering its name or description.</p>
+        </section>
+
         <section class="search-section">
-
-            <h2>Find Your Videos</h2>
-            <p>Search your video library by name or description.</p>
-
             <form action="/" method="GET">
+                <input type="hidden" name="page" value="search">
 
                 <input type="text" name="q" placeholder="Enter video name..." value="{{ search_query }}">
 
                 <button type="submit">Search</button>
-
             </form>
-
-        </section>
-
-        <section class="upload-section">
-
-            <h2>Upload a Video</h2>
-
-            <form action="/upload" method="POST" enctype="multipart/form-data">
-
-                <input type="text" name="title" placeholder="Enter video title" required>
-
-                <textarea name="description" placeholder="Enter video description"></textarea>
-
-                <input type="file" name="video" accept=".mp4,video/mp4" required>
-
-                <button type="submit">Upload Video</button>
-
-            </form>
-
         </section>
 
         <section class="results">
-
             <h2>Video Library</h2>
-
             <p>{{ videos|length }} video(s) found</p>
 
             <div class="video-grid">
-
                 {% for video in videos %}
-
                 <div class="video-card">
 
-                    <video controls width="100%">
-                        <source src="/video/{{ video['filename'] }}" type="video/mp4">
+                    <video controls preload="metadata">
+                        <source src="{{ url_for('serve_video', filename=video['filename']) }}" type="video/mp4">
                         Your browser does not support video playback.
                     </video>
 
                     <h3>{{ video['title'] }}</h3>
-
-                    <p>{{ video['description'] }}</p>
+                    <p>{{ video['description'] or 'No description available.' }}</p>
 
                 </div>
-
                 {% else %}
-
                 <p>No matching videos found.</p>
-
                 {% endfor %}
-
             </div>
-
         </section>
+
+        {% elif page == 'upload' %}
+
+        <section class="page-heading">
+            <a href="/" class="back-link">← Back to options</a>
+            <h2>Upload a Video</h2>
+            <p>Add a video to your collection.</p>
+        </section>
+
+        <section class="upload-section">
+            <form action="/upload" method="POST" enctype="multipart/form-data">
+
+                <label for="title">Video title</label>
+                <input type="text" id="title" name="title" placeholder="Enter video title" required>
+
+                <label for="description">Description</label>
+                <textarea id="description" name="description" placeholder="Describe your video"></textarea>
+
+                <label for="video">Select MP4 video</label>
+                <input type="file" id="video" name="video" accept=".mp4,video/mp4" required>
+
+                <button type="submit">Upload Video</button>
+            </form>
+        </section>
+
+        <section class="results">
+            <h2>Video Library</h2>
+            <p>{{ videos|length }} video(s) in your collection</p>
+
+            <div class="video-grid">
+                {% for video in videos %}
+                <div class="video-card">
+
+                    <video controls preload="metadata">
+                        <source src="{{ url_for('serve_video', filename=video['filename']) }}" type="video/mp4">
+                        Your browser does not support video playback.
+                    </video>
+
+                    <h3>{{ video['title'] }}</h3>
+                    <p>{{ video['description'] or 'No description available.' }}</p>
+
+                </div>
+                {% else %}
+                <p>Your library is empty. Upload your first video!</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        {% endif %}
 
     </main>
 
     <footer>
-        <p>ClipsCart | Minor Project</p>
+        <p>ClipsCart | Video Indexing and Retrieval System</p>
     </footer>
+
 
 </body>
 

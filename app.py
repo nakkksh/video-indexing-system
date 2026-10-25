@@ -61,18 +61,33 @@ def add_sample_videos():
 @app.route('/')
 def index():
     search_query = request.args.get('q', '').strip()
+    page = request.args.get('page', 'home')
 
     db = get_db()
+    
     if search_query:
+        page = 'search'
         search_pattern = f"%{search_query}%"
-        videos = db.execute('SELECT * FROM videos WHERE title LIKE ? OR description LIKE ? ORDER BY title', (
-            search_pattern,
-            search_pattern
-        )).fetchall()
-    else:
-        videos = db.execute('SELECT id, title, description, filename FROM videos ORDER BY title').fetchall()
 
-    return render_template('index.html', videos=videos, search_query=search_query)
+        videos = db.execute("""
+            SELECT id, title, description, filename
+            FROM videos
+            WHERE title LIKE ? OR description LIKE ?
+            ORDER BY title
+        """, (search_pattern, search_pattern)).fetchall()
+    else:
+        videos = db.execute("""
+        SELECT id, title, description, filename
+        FROM videos
+        ORDER BY title
+    """).fetchall()
+
+    return render_template(
+        'index.html',
+        videos=videos,
+        search_query=search_query,
+        page=page
+)
 
     
 # video playback route
