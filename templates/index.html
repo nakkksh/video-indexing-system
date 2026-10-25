@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Video Indexing System</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <header>
+        <h1>ClipsCart</h1>
+        <p>Video Indexing and Retrieval System</p>
+    </header>
+
+    <main>
+
+        <section class="search-section">
+
+            <h2>Find Your Videos</h2>
+            <p>Search your video library by name or description.</p>
+
+            <form action="/" method="GET">
+
+                <input type="text" name="q" placeholder="Enter video name..." value="{{ search_query }}">
+
+                <button type="submit">Search</button>
+
+            </form>
+
+        </section>
+
+        <section class="results">
+
+            <h2>Video Library</h2>
+
+            <p>{{ videos|length }} video(s) found</p>
+
+            <div class="video-grid">
+
+                {% for video in videos %}
+
+                <div class="video-card">
+
+                    <video controls width="100%">
+                        <source src="/video/{{ video['filename'] }}" type="video/mp4">
+                        Your browser does not support video playback.
+                    </video>
+
+                    <h3>{{ video['title'] }}</h3>
+
+                    <p>{{ video['description'] }}</p>
+
+                </div>
+
+                {% else %}
+
+                <p>No matching videos found.</p>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer>
+        <p>ClipsCart | Minor Project</p>
+    </footer>
+
+</body>
+
+</html>

@@ -1,0 +1,145 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: #f8fafc;
+}
+
+header {
+    background: #111827;
+    padding: 25px 5%;
+    border-bottom: 1px solid #334155;
+}
+
+header h1 {
+    font-size: 30px;
+    color: #38bdf8;
+    margin-bottom: 8px;
+}
+
+header p {
+    color: #94a3b8;
+}
+
+main {
+    width: 90%;
+    max-width: 1200px;
+    margin: auto;
+}
+
+.search-section {
+    text-align: center;
+    padding: 60px 0 40px;
+}
+
+.search-section h2 {
+    font-size: 36px;
+    margin-bottom: 15px;
+}
+
+.search-section p {
+    color: #94a3b8;
+    margin-bottom: 25px;
+}
+
+.search-section form {
+    display: flex;
+    max-width: 600px;
+    margin: auto;
+    gap: 10px;
+}
+
+.search-section input {
+    flex: 1;
+    min-width: 0;
+    padding: 15px;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    background: #1e293b;
+    color: white;
+    font-size: 15px;
+}
+
+.search-section button {
+    padding: 15px 25px;
+    background: #0284c7;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.results {
+    padding-bottom: 60px;
+}
+
+.results>h2 {
+    margin-bottom: 12px;
+}
+
+.results>p {
+    color: #94a3b8;
+    margin-bottom: 25px;
+}
+
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 25px;
+}
+
+.video-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.video-card video {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #020617;
+}
+
+.video-card h3 {
+    padding: 15px 15px 8px;
+}
+
+.video-card p {
+    padding: 0 15px 18px;
+    color: #94a3b8;
+    line-height: 1.5;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    border-top: 1px solid #334155;
+    color: #94a3b8;
+}
+
+@media (max-width: 800px) {
+    .video-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 550px) {
+    .video-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .search-section h2 {
+        font-size: 28px;
+    }
+
+    .search-section form {
+        flex-direction: column;
+    }
+}
