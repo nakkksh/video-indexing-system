@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.env
+
+# SQLite database
+video_database.db
+
+# Uploaded video file
+videos/*
+!videos/.gitkeep
+
+# macOS
+.DS_Storevideos/
