@@ -176,6 +176,70 @@ def upload_video():
 
     return redirect(url_for("index"))
 
+@app.route("/delete/<int:video_id>", methods=["POST"])
+def delete_video(video_id):
+    # Require an admin password configured in Render.
+    admin_password = os.environ.get("ADMIN_PASSWORD")
+
+    if not admin_password:
+        abort(503, description="Admin password is not configured.")
+
+    supplied_password = request.form.get("admin_password", "")
+
+    import hmac
+    if not hmac.compare_digest(supplied_password, admin_password):
+        abort(403, description="Incorrect admin password.")
+
+    db = get_db()
+
+    video = db.execute(
+        "SELECT id, filename FROM videos WHERE id = ?",
+        (video_id,),
+    ).fetchone()
+
+    if video is None:
+        abort(404, description="Video not found.")
+
+    filename = video["filename"]
+
+    # Delete the video from Cloudinary if it is a Cloudinary asset.
+    try:
+        local_path = os.path.join(VIDEO_FOLDER, filename)
+
+        if os.path.isfile(local_path):
+            os.remove(local_path)
+        else:
+            result = cloudinary.uploader.destroy(
+                filename,
+                resource_type="video",
+                invalidate=True,
+            )
+
+            if result.get("result") not in ("ok", "not found"):
+                app.logger.error(
+                    "Cloudinary deletion failed: %s",
+                    result,
+                )
+                flash("Video could not be deleted from Cloudinary.")
+                return redirect(url_for("index"))
+
+        # Delete metadata only after the file deletion succeeds
+        # or Cloudinary confirms that the asset is already absent.
+        db.execute(
+            "DELETE FROM videos WHERE id = ?",
+            (video_id,),
+        )
+        db.commit()
+
+        flash("Video and its metadata deleted successfully!")
+
+    except Exception:
+        db.rollback()
+        app.logger.exception("Video deletion failed")
+        flash("Deletion failed. Check the server logs.")
+
+    return redirect(url_for("index"))
+
 
 if __name__ == "__main__":
     app.run(debug=False, host="0.0.0.0", port=int(os.environ.get("PORT", 5001)))

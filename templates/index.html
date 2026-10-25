@@ -94,6 +94,12 @@
 
                     <h3>{{ video['title'] }}</h3>
                     <p>{{ video['description'] or 'No description available.' }}</p>
+                    <form action="{{ url_for('delete_video', video_id=video['id']) }}" method="POST"
+                        onsubmit="return confirm('Are you sure you want to delete this video?');">
+                        <form action="{{ url_for('delete_video', video_id=video['id']) }}" method="POST"
+                            onsubmit="return confirm('Are you sure you want to delete this video?');">
+                        </form>
+
 
                 </div>
                 {% else %}
@@ -281,6 +287,14 @@
 
                     <h3>{{ video['title'] }}</h3>
                     <p>{{ video['description'] or 'No description available.' }}</p>
+                    <form action="{{ url_for('delete_video', video_id=video['id']) }}" method="POST"
+                        onsubmit="return confirm('Are you sure you want to delete this video?');">
+                        <label>Admin Password:</label>
+                        <input type="password" name="admin_password" required autocomplete="current-password">
+
+                        <button type="submit">Delete Video</button>
+                    </form>
+
 
                 </div>
                 {% else %}
