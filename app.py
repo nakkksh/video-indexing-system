@@ -12,7 +12,7 @@ from flask import (
 )
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("FLASK_SECRET_KEY", "change-this-in-render-environment")
+app.secret_key = os.environ.get("FLASK_SECRET_KEY")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 VIDEO_FOLDER = os.path.join(BASE_DIR, "videos")
