@@ -73,17 +73,45 @@
             <form action="/" method="GET">
                 <input type="hidden" name="page" value="search">
 
-                <input id="searchInput" type="search" name="q" placeholder="Enter video name..."
-                    value="{{ search_query }}" list="videoSuggestions" autocomplete="off">
-                <datalist id="videoSuggestions"></datalist>
+                <div class="search-input-wrap">
+                    <input id="searchInput" type="search" name="q" placeholder="Enter video name..."
+                        value="{{ search_query }}" autocomplete="off" role="combobox"
+                        aria-autocomplete="list" aria-expanded="false" aria-controls="videoSuggestions">
+                    <div id="videoSuggestions" class="suggestion-list" role="listbox" aria-label="Video suggestions" hidden></div>
+                </div>
 
                 <button type="submit">Search</button>
             </form>
             <script>
                 const searchInput = document.getElementById('searchInput');
                 const suggestionList = document.getElementById('videoSuggestions');
+                const searchForm = searchInput.form;
                 let suggestionTimer;
                 let suggestionRequest;
+
+                function closeSuggestions() {
+                    suggestionList.hidden = true;
+                    searchInput.setAttribute('aria-expanded', 'false');
+                }
+
+                function showSuggestions(titles) {
+                    suggestionList.replaceChildren();
+                    titles.forEach(function (title) {
+                        const option = document.createElement('button');
+                        option.type = 'button';
+                        option.className = 'suggestion-option';
+                        option.setAttribute('role', 'option');
+                        option.textContent = title;
+                        option.addEventListener('click', function () {
+                            searchInput.value = title;
+                            closeSuggestions();
+                            searchForm.requestSubmit();
+                        });
+                        suggestionList.appendChild(option);
+                    });
+                    suggestionList.hidden = titles.length === 0;
+                    searchInput.setAttribute('aria-expanded', String(titles.length > 0));
+                }
 
                 searchInput.addEventListener('input', function () {
                     clearTimeout(suggestionTimer);
@@ -91,7 +119,7 @@
 
                     const query = searchInput.value.trim();
                     if (query.length < 2) {
-                        suggestionList.replaceChildren();
+                        showSuggestions([]);
                         return;
                     }
 
@@ -104,20 +132,21 @@
                             );
                             if (!response.ok) return;
 
-                            const suggestions = await response.json();
-                            suggestionList.replaceChildren(
-                                ...suggestions.map(function (title) {
-                                    const option = document.createElement('option');
-                                    option.value = title;
-                                    return option;
-                                })
-                            );
+                            showSuggestions(await response.json());
                         } catch (error) {
                             if (error.name !== 'AbortError') {
                                 console.error('Could not load search suggestions.', error);
                             }
                         }
                     }, 180);
+                });
+
+                searchInput.addEventListener('keydown', function (event) {
+                    if (event.key === 'Escape') closeSuggestions();
+                });
+
+                document.addEventListener('click', function (event) {
+                    if (!event.target.closest('.search-input-wrap')) closeSuggestions();
                 });
             </script>
         </section>
