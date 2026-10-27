@@ -83,27 +83,25 @@ def close_db(error=None):
 
 
 def search_score(query, video):
-    """Score a video against a query, allowing small spelling mistakes."""
+    """Score a title against a query, allowing small spelling mistakes."""
     query_words = re.findall(r"\w+", query.casefold())
     if not query_words:
         return 0.0
 
     title = (video["title"] or "").casefold()
-    description = (video["description"] or "").casefold()
-    text = f"{title} {description}"
+    title_words = re.findall(r"\w+", title)
+    if not title_words:
+        return 0.0
 
-    if query.casefold() in title:
-        return 1.0
-    if query.casefold() in description:
-        return 0.9
-
-    words = re.findall(r"\w+", text)
-    word_score = sum(
-        max((SequenceMatcher(None, query_word, word).ratio() for word in words), default=0.0)
+    word_scores = [
+        max(SequenceMatcher(None, query_word, title_word).ratio() for title_word in title_words)
         for query_word in query_words
-    ) / len(query_words)
-    phrase_score = SequenceMatcher(None, query.casefold(), text).ratio()
-    return max(word_score, phrase_score)
+    ]
+    # Require every query word to resemble a title word. This prevents common
+    # words in descriptions from making unrelated videos look like fuzzy hits.
+    if min(word_scores) < 0.72:
+        return 0.0
+    return sum(word_scores) / len(word_scores)
 
 
 @app.route("/")
@@ -129,13 +127,13 @@ def index():
                 or search_query.casefold() in (video["description"] or "").casefold()
             ]
             fuzzy_matches = []
-            if len(search_query) >= 3:
+            if not exact_matches and len(search_query) >= 3:
                 fuzzy_matches = [
                     (search_score(search_query, video), video)
                     for video in all_videos
                     if video not in exact_matches
                 ]
-                fuzzy_matches = [item for item in fuzzy_matches if item[0] >= 0.58]
+                fuzzy_matches = [item for item in fuzzy_matches if item[0] >= 0.78]
                 fuzzy_matches.sort(key=lambda item: (-item[0], item[1]["title"].casefold()))
             videos = exact_matches + [video for _, video in fuzzy_matches]
         else:
