@@ -73,10 +73,53 @@
             <form action="/" method="GET">
                 <input type="hidden" name="page" value="search">
 
-                <input type="text" name="q" placeholder="Enter video name..." value="{{ search_query }}">
+                <input id="searchInput" type="search" name="q" placeholder="Enter video name..."
+                    value="{{ search_query }}" list="videoSuggestions" autocomplete="off">
+                <datalist id="videoSuggestions"></datalist>
 
                 <button type="submit">Search</button>
             </form>
+            <script>
+                const searchInput = document.getElementById('searchInput');
+                const suggestionList = document.getElementById('videoSuggestions');
+                let suggestionTimer;
+                let suggestionRequest;
+
+                searchInput.addEventListener('input', function () {
+                    clearTimeout(suggestionTimer);
+                    if (suggestionRequest) suggestionRequest.abort();
+
+                    const query = searchInput.value.trim();
+                    if (query.length < 2) {
+                        suggestionList.replaceChildren();
+                        return;
+                    }
+
+                    suggestionTimer = setTimeout(async function () {
+                        suggestionRequest = new AbortController();
+                        try {
+                            const response = await fetch(
+                                `{{ url_for('search_suggestions') }}?q=${encodeURIComponent(query)}`,
+                                { signal: suggestionRequest.signal }
+                            );
+                            if (!response.ok) return;
+
+                            const suggestions = await response.json();
+                            suggestionList.replaceChildren(
+                                ...suggestions.map(function (title) {
+                                    const option = document.createElement('option');
+                                    option.value = title;
+                                    return option;
+                                })
+                            );
+                        } catch (error) {
+                            if (error.name !== 'AbortError') {
+                                console.error('Could not load search suggestions.', error);
+                            }
+                        }
+                    }, 180);
+                });
+            </script>
         </section>
 
         <section class="results">
